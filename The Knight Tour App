@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function Prototypes
+void solveKnightsTour(int n, int row, int col, int** board);
+int isValidMove(int n, int row, int col, int** board);
+void printBoard(int n, int** board);
+void freeBoard(int n, int** board);
+int** newBoard(int n);
+
+// Main Function
+int main() {
+    // Change the value of n as needed
+    int n;
+    printf("Enter the size of the chessboard (n x n): ");
+    scanf("%d", &n);
+
+    int** board = newBoard(n);
+
+    // Logic Function
+    solveKnightsTour(n, 0, 0, board);
+
+    // Free memory for the board
+    freeBoard(n, board);
+
+    printf("Press Enter to exit");
+    getchar();  // Wait for a key press
+    return EXIT_SUCCESS;
+}
+
+// Function that acts as a WRAPPER to solve the Knight's Tour problem
+void solveKnightsTour(int n, int row, int col, int** board) {
+    if (row >= 0 && row < n && col >= 0 && col < n && board[row][col] == -1) {
+        board[row][col] = n * n - 1; // Mark the current square as visited
+
+        if (n * n - 1 == 0) {
+            // If all squares are visited, print the solution
+            printBoard(n, board);
+        } else {
+            // Try all possible moves from the current square
+            int moveRow[] = {2, 1, -1, -2, -2, -1, 1, 2};
+            int moveCol[] = {1, 2, 2, 1, -1, -2, -2, -1};
+
+            for (int i = 0; i < 8; i++) {
+                int newRow = row + moveRow[i];
+                int newCol = col + moveCol[i];
+
+                solveKnightsTour(n, newRow, newCol, board);
+            }
+        }
+
+        // Backtrack
+        board[row][col] = -1;
+    }
+}
+
+// Function to check if a move is valid
+int isValidMove(int n, int row, int col, int** board) {
+    return (row >= 0 && row < n && col >= 0 && col < n && board[row][col] == -1);
+}
+
+// Function to print the chessboard
+void printBoard(int n, int** board) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%2d ", board[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+// Function to create a new chessboard
+int** newBoard(int n) {
+    int** board = (int**)malloc(n * sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        board[i] = (int*)malloc(n * sizeof(int));
+        for (int j = 0; j < n; j++) {
+            board[i][j] = -1; // Initialize all squares as unvisited
+        }
+    }
+    return board;
+}
+
+// Function to free memory for the chessboard
+void freeBoard(int n, int** board) {
+    for (int i = 0; i < n; i++) {
+        free(board[i]);
+    }
+    free(board);
+}
