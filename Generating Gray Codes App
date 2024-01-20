@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function Prototypes
+void generateGrayCodes(int n, int** codes, int row);
+void printMatrix(int n, int** matrix);
+int** createMatrix(int rows, int cols);
+void freeMatrix(int** matrix, int rows);
+
+// Main Function
+int main() {
+    // Change the value of n as needed
+    int n;
+    printf("Enter the number of bits (n): ");
+    scanf("%d", &n);
+
+    // Calculate the number of rows for the matrix (2^n)
+    int numRows = 1 << n;
+
+    // Create a dynamic matrix to store the Gray codes
+    int** grayCodes = createMatrix(numRows, n);
+
+    // Generate Gray codes recursively
+    generateGrayCodes(n, grayCodes, 0);
+
+    // Print the resulting matrix
+    printMatrix(n, grayCodes);
+
+    // Free memory for the matrix
+    freeMatrix(grayCodes, numRows);
+
+    return EXIT_SUCCESS;
+}
+
+// Function to generate Gray codes recursively
+void generateGrayCodes(int n, int** codes, int row) {
+    if (n <= 0 || row >= (1 << n)) {
+        return;
+    }
+
+    // Reflect the codes from the previous level
+    for (int i = 0; i < row; i++) {
+        codes[(1 << (n - 1)) + i][n - 1] = 1 | codes[i][n - 1] << 1;
+    }
+
+    // Prefix the entries in the original list with a binary 0
+    for (int i = 0; i < row; i++) {
+        codes[i][n - 1] = codes[i][n - 1] << 1;
+    }
+
+    // Recursively generate Gray codes for the next level
+    generateGrayCodes(n - 1, codes, row * 2);
+
+    // Prefix the entries in the reflected list with a binary 1
+    for (int i = 0; i < row; i++) {
+        codes[i + row][n - 1] = codes[i + row][n - 1] | 1;
+    }
+
+    // Recursively generate Gray codes for the next level
+    generateGrayCodes(n - 1, codes, row * 2);
+}
+
+// Function to print the matrix
+void printMatrix(int n, int** matrix) {
+    for (int i = 0; i < (1 << n); i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+// Function to create a dynamic matrix
+int** createMatrix(int rows, int cols) {
+    int** matrix = (int**)malloc(rows * sizeof(int*));
+    for (int i = 0; i < rows; i++) {
+        matrix[i] = (int*)malloc(cols * sizeof(int));
+    }
+    return matrix;
+}
+
+// Function to free memory for the matrix
+void freeMatrix(int** matrix, int rows) {
+    for (int i = 0; i < rows; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
