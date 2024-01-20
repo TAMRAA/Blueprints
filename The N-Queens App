@@ -14,9 +14,17 @@ int main() {
     printf("Enter the number of queens: ");
     scanf("%d", &n);
 
-    int* colPlacements = (int*)malloc(n * sizeof(int));
+    // Dynamically allocate an array that keeps track of the column placement of queens for each row
+    int* colPlacements = (int *) malloc (n * sizeof(int));
 
-    // Logic Function
+
+    /* Logic Function
+
+     * Take n from user
+
+     * Pass the current row we are on  and an empty integer array to act as result array
+
+     */
     solveNQueens(n, 0, colPlacements);
 
     // Free memory for colPlacements
@@ -29,26 +37,48 @@ int main() {
 // Function that acts as a WRAPPER to solve the N-Queens problem
 void solveNQueens(int n, int row, int* colPlacements) {
 
+    // This means that all rows have been considered, and a valid placement of queens has been found.
     if (row == n) {
+        // display the found solution
         printQueens(n, colPlacements);
     } else {
-        for (int col = 0; col < n; col++) {
+        // Otherwise
+
+        // It iterates over each column (col) in the current row and
+        // makes a choice by placing a queen in that column
+
+        for (int col = 0; col < n; col++){
+            // Make a Choice
             colPlacements[row] = col;
+
+            // It then checks if the placement is valid using the isValid function.
             if (isValid(colPlacements, row, col)) {
+                // if the placement is valid, it recursively calls solveNQueens for the next row (row + 1).
                 solveNQueens(n, row + 1, colPlacements);
             }
+            // After exploring all possibilities for the current row, it undoes the choice by backtracking.
         }
     }
 
 }
-// Function to check if placing a queen in the current position is valid
+// It checks whether placing a queen in the given position is valid by examining previously placed queens.
+
+/* It checks for three conditions:
+    Vertical Threat: If there is already a queen in the same column in a previous row.
+    Horizontal Threat: If there is already a queen in the same row in a previous column.
+    Diagonal Threat: If there is already a queen on the diagonal path
+    (abs(colPlacements[i] - col) == row - i) in a previous row.
+ */
+
 int isValid(int* colPlacements, int row, int col) {
     for (int i = 0; i < row; i++) {
         if (colPlacements[i] == col || abs(colPlacements[i] - col) == row - i) {
-            return 0;  // Not valid
+            // Not valid
+            return 0;
         }
     }
-    return 1;  // Valid
+    // Valid
+    return 1;
 }
 
 // Function to print the N-Queens arrangement
