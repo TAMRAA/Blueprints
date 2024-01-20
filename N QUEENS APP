@@ -1,1 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
 
+// Function Prototypes
+void solveNQueens(int n, int row, int* colPlacements);
+int isValid(int* colPlacements, int row, int col);
+void printQueens(int n, int* colPlacements);
+void freeQueens(int* colPlacements);
+
+// Main Function
+int main() {
+    // Change the value of n as needed
+    int n;
+    printf("Enter the number of queens: ");
+    scanf("%d", &n);
+
+    int* colPlacements = (int*)malloc(n * sizeof(int));
+
+    // Logic Function
+    solveNQueens(n, 0, colPlacements);
+
+    // Free memory for colPlacements
+    freeQueens(colPlacements);
+
+
+    return EXIT_SUCCESS;
+}
+
+// Function that acts as a WRAPPER to solve the N-Queens problem
+void solveNQueens(int n, int row, int* colPlacements) {
+
+    if (row == n) {
+        printQueens(n, colPlacements);
+    } else {
+        for (int col = 0; col < n; col++) {
+            colPlacements[row] = col;
+            if (isValid(colPlacements, row, col)) {
+                solveNQueens(n, row + 1, colPlacements);
+            }
+        }
+    }
+
+}
+// Function to check if placing a queen in the current position is valid
+int isValid(int* colPlacements, int row, int col) {
+    for (int i = 0; i < row; i++) {
+        if (colPlacements[i] == col || abs(colPlacements[i] - col) == row - i) {
+            return 0;  // Not valid
+        }
+    }
+    return 1;  // Valid
+}
+
+// Function to print the N-Queens arrangement
+void printQueens(int n, int* colPlacements) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (colPlacements[i] == j) {
+                fprintf(stdout, "Q ");
+            } else {
+                fprintf(stdout, ". ");
+            }
+        }
+        fprintf(stdout, "\n");
+    }
+    fprintf(stdout,"\n");
+}
+
+// Function to free memory for colPlacements
+void freeQueens(int* colPlacements) {
+    free(colPlacements);
+}
