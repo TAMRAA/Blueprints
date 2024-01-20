@@ -37,7 +37,7 @@ int main() {
 // Function that acts as a WRAPPER to solve the N-Queens problem
 void solveNQueens(int n, int row, int* colPlacements) {
 
-    // This means that all rows have been considered, and a valid placement of queens has been found.
+    // All rows have been considered, and a valid placement of queens has been found.
     if (row == n) {
         // display the found solution
         printQueens(n, colPlacements);
@@ -48,10 +48,11 @@ void solveNQueens(int n, int row, int* colPlacements) {
         // makes a choice by placing a queen in that column
 
         for (int col = 0; col < n; col++){
+
             // Make a Choice
             colPlacements[row] = col;
 
-            // It then checks if the placement is valid using the isValid function.
+            // It then checks if the placement is valid using the isValid function
             if (isValid(colPlacements, row, col)) {
                 // if the placement is valid, it recursively calls solveNQueens for the next row (row + 1).
                 solveNQueens(n, row + 1, colPlacements);
@@ -61,9 +62,11 @@ void solveNQueens(int n, int row, int* colPlacements) {
     }
 
 }
+
 // It checks whether placing a queen in the given position is valid by examining previously placed queens.
 
-/* It checks for three conditions:
+/*
+    It checks for three conditions:
     Vertical Threat: If there is already a queen in the same column in a previous row.
     Horizontal Threat: If there is already a queen in the same row in a previous column.
     Diagonal Threat: If there is already a queen on the diagonal path
@@ -72,6 +75,16 @@ void solveNQueens(int n, int row, int* colPlacements) {
 
 int isValid(int* colPlacements, int row, int col) {
     for (int i = 0; i < row; i++) {
+        /*
+
+          colPlacements[i] == col: Checks if there is already a queen in the same column.
+          (abs(colPlacements[i] - col) == row - i) Checks if there is a queen in the same diagonal.
+          (row - i): represents the vertical distance between the current row and the previously
+          placed queens
+          (colPlacements[i] - col): represents the horizontal distance between the columns.
+
+         */
+
         if (colPlacements[i] == col || abs(colPlacements[i] - col) == row - i) {
             // Not valid
             return 0;
@@ -82,7 +95,7 @@ int isValid(int* colPlacements, int row, int col) {
 }
 
 // Function to print the N-Queens arrangement
-void printQueens(int n, int* colPlacements) {
+void printQueens(int n, int *colPlacements) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             if (colPlacements[i] == j) {
