@@ -7,6 +7,11 @@ int isValidMove(int n, int row, int col, int** board);
 void printBoard(int n, int** board);
 void freeBoard(int n, int** board);
 int** newBoard(int n);
+int countValidMoves(int n, int row, int col, int** board);
+
+// Arrays representing possible moves for a knight
+int moveRow[] = {2, 1, -1, -2, -2, -1, 1, 2};
+int moveCol[] = {1, 2, 2, 1, -1, -2, -2, -1};
 
 // Main Function
 int main() {
@@ -17,53 +22,78 @@ int main() {
 
     int** board = newBoard(n);
 
-    // Logic Function
+    // Start the tour from the top-left corner
     solveKnightsTour(n, 0, 0, board);
 
     // Free memory for the board
     freeBoard(n, board);
 
-    printf("Press Enter to exit");
-    getchar();  // Wait for a key press
+
     return EXIT_SUCCESS;
 }
 
 // Function that acts as a WRAPPER to solve the Knight's Tour problem
 void solveKnightsTour(int n, int row, int col, int** board) {
-    if (row >= 0 && row < n && col >= 0 && col < n && board[row][col] == -1) {
-        board[row][col] = n * n - 1; // Mark the current square as visited
+    board[row][col] = 1; // Mark the current square as visited
 
-        if (n * n - 1 == 0) {
-            // If all squares are visited, print the solution
-            printBoard(n, board);
-        } else {
-            // Try all possible moves from the current square
-            int moveRow[] = {2, 1, -1, -2, -2, -1, 1, 2};
-            int moveCol[] = {1, 2, 2, 1, -1, -2, -2, -1};
+    if (n * n == 1) {
+        // If the board has only one square, print the solution
+        printBoard(n, board);
+    } else {
+        for (int i = 0; i < n * n - 1; i++) {
+            // Find the next valid move with the minimum number of accessible squares
+            int minMove = -1;
+            int minCount = n + 1;
 
-            for (int i = 0; i < 8; i++) {
-                int newRow = row + moveRow[i];
-                int newCol = col + moveCol[i];
+            for (int j = 0; j < 8; j++) {
+                int newRow = row + moveRow[j];
+                int newCol = col + moveCol[j];
 
-                solveKnightsTour(n, newRow, newCol, board);
+                if (isValidMove(n, newRow, newCol, board)) {
+                    int count = countValidMoves(n, newRow, newCol, board);
+                    if (count < minCount) {
+                        minCount = count;
+                        minMove = j;
+                    }
+                }
+            }
+
+            // Move to the next square
+            if (minMove != -1) {
+                row += moveRow[minMove];
+                col += moveCol[minMove];
+                board[row][col] = i + 2; // Mark the current square as visited
             }
         }
 
-        // Backtrack
-        board[row][col] = -1;
+        // Print the solution
+        printBoard(n, board);
     }
 }
 
 // Function to check if a move is valid
 int isValidMove(int n, int row, int col, int** board) {
-    return (row >= 0 && row < n && col >= 0 && col < n && board[row][col] == -1);
+    return (row >= 0 && row < n && col >= 0 && col < n && board[row][col] == 0);
+}
+
+// Function to count the number of valid moves from a square
+int countValidMoves(int n, int row, int col, int** board) {
+    int count = 0;
+    for (int i = 0; i < 8; i++) {
+        int newRow = row + moveRow[i];
+        int newCol = col + moveCol[i];
+        if (isValidMove(n, newRow, newCol, board)) {
+            count++;
+        }
+    }
+    return count;
 }
 
 // Function to print the chessboard
 void printBoard(int n, int** board) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            printf("%2d ", board[i][j]);
+            printf("%3d ", board[i][j]);
         }
         printf("\n");
     }
@@ -76,7 +106,7 @@ int** newBoard(int n) {
     for (int i = 0; i < n; i++) {
         board[i] = (int*)malloc(n * sizeof(int));
         for (int j = 0; j < n; j++) {
-            board[i][j] = -1; // Initialize all squares as unvisited
+            board[i][j] = 0; // Initialize all squares as unvisited
         }
     }
     return board;
