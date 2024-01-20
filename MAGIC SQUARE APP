@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+// Function Prototypes
+void solveMagicSquare(int n, int row, int col, int** matrix);
+int isMagicSquare(int** matrix, int n);
+void printMatrix(int** matrix, int n);
+void freeMatrix(int** matrix, int n);
+int** newMatrix(int n);
+
+
+// Main Function
+
+int main() {
+    // Change the value of n as needed
+    int n = 3;
+    int** matrix = NULL;
+
+    fprintf(stdout,"Insert n: ");
+    scanf("%d", &n);
+
+    matrix = newMatrix(n);
+
+    // Logic Function
+    solveMagicSquare(n, 0, 0, matrix);
+
+    // Free the memory of the matrix
+    freeMatrix(matrix, n);
+
+    return EXIT_SUCCESS;
+}
+
+
+// FUNCTION DECLARATIONS
+
+// Function to create a dynamic matrix
+int** newMatrix(int n) {
+
+    int** matrix = (int ** ) malloc (n * sizeof(int*));
+
+    // Safety check
+    if(matrix == NULL){
+        fprintf(stderr,"Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < n; i++) {
+        // Allocate an array of integers into the matrix rows
+        matrix[i] = (int *) malloc (n * sizeof(int));
+
+        // Safety check
+        if(matrix[i] == NULL){
+            fprintf(stderr,"Memory allocation failed\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return matrix;
+}
+
+// Function that act as a WRAPPER to solve the magic square problem
+void solveMagicSquare(int n, int row, int col, int** matrix) {
+    int i;
+
+    // OUR GOAL
+    if (row == n) {
+        if (isMagicSquare(matrix, n)) {
+            printMatrix(matrix, n);
+        }
+    } else {
+        for (i = 1; i <= n * n; i++) {
+            matrix[row][col] = i;
+            solveMagicSquare(n, row + ((col + 1) / n), (col + 1) % n, matrix);
+            // No need to backtrack for the matrix; it will be overwritten in the next iteration
+        }
+    }
+}
+
+// Function to check if the current matrix is a magic square
+int isMagicSquare(int** matrix, int n) {
+    int sumRow, sumCol, sumDiagonal1 = 0, sumDiagonal2 = 0;
+
+    // Calculate the sum of the first row to use as a reference
+    sumRow = 0;
+    for (int j = 0; j < n; j++) {
+        sumRow += matrix[0][j];
+    }
+
+    // Check sums of rows
+    for (int i = 1; i < n; i++) {
+        sumCol = 0;
+        for (int j = 0; j < n; j++) {
+            sumCol += matrix[i][j];
+        }
+        if (sumCol != sumRow) {
+            return 0;  // Not a magic square
+        }
+    }
+
+    // Check sums of columns
+    for (int j = 0; j < n; j++) {
+        sumCol = 0;
+        for (int i = 0; i < n; i++) {
+            sumCol += matrix[i][j];
+        }
+        if (sumCol != sumRow) {
+            return 0;  // Not a magic square
+        }
+    }
+
+    // Check sum of the main diagonal (top-left to bottom-right)
+    for (int i = 0; i < n; i++) {
+        sumDiagonal1 += matrix[i][i];
+    }
+    if (sumDiagonal1 != sumRow) {
+        return 0;  // Not a magic square
+    }
+
+    // Check sum of the other diagonal (top-right to bottom-left)
+    for (int i = 0; i < n; i++) {
+        sumDiagonal2 += matrix[i][n - 1 - i];
+    }
+    if (sumDiagonal2 != sumRow) {
+        return 0;  // Not a magic square
+    }
+
+    // If all checks passed, it's a magic square
+    return 1;
+}
+
+
+
+// Function to print the matrix
+void printMatrix(int** matrix, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+
+
+// Function to free memory for the matrix
+void freeMatrix(int** matrix, int n) {
+    for (int i = 0; i < n; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
