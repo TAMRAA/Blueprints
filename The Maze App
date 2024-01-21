@@ -1,0 +1,233 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define DEBUG 0
+
+// RECURSIVE BACKTRACKING WITH SHORTEST PATHS
+
+/*
+  
+ * Overall Function Flow:
+ 
+   The function explores all possible paths in the maze using recursive backtracking.
+   
+   It keeps track of the best solution found so far (mazeBest).
+   
+   It avoids unnecessary exploration if the current path is already longer than the best path.
+   
+   When a stopping position is reached, it checks if the current solution is better than the best
+   solution found so far and updates accordingly.
+   
+   This recursive backtracking approach efficiently explores the maze,
+   finding the shortest path from the starting position to the stopping position.
+
+  */
+
+
+// Maximum size for a line in the maze
+#define MAX 100
+
+#define EMPTY ' '
+#define START '@'
+#define STOP  '#'
+#define PATH  '$'
+
+
+// COORDINATION
+const int xOff[4] = { 0, 1, 0, -1};
+const int yOff[4] = {-1, 0, 1,  0};
+
+// Function Prototypes
+
+// Recursive function to move through the maze and find the best solution.
+int move_recur(char **mazeCurr, int stepCurr, char **mazeBest, int stepBest, int nr, int nc, int row, int col);
+void display(char **maze, int nr);
+
+// Functions that has in-built error checking
+FILE *util_fopen(char *name, char *mode);
+void *util_malloc(int size);
+
+// Duplicate with error handling
+char *util_strdup(char *src);
+
+// Main Program
+int main(){
+
+    int r = -1,  c = -1, i, j, nr, nc, step;
+
+    // Current Solution and Best Solution
+    char **mazeCurr, **mazeBest;
+    char line[MAX];
+    FILE *fp;
+
+
+    fp = util_fopen("../input.txt", "r");
+    fgets(line, MAX, fp);
+    sscanf(line, "%d %d", &nr, &nc);
+
+    mazeCurr = (char **)util_malloc(nr * sizeof(char *));
+    mazeBest = (char **)util_malloc(nr * sizeof(char *));
+
+    for (i=0; i<nr; i++) {
+
+        fgets(line, MAX, fp);
+
+        // Dynamically allocating the whole string
+        mazeCurr[i] = util_strdup(line);
+        mazeBest[i] = util_strdup(line);
+
+        // Search for starting point in the matrix
+        for (j=0; j < nc; j++) {
+            if (mazeCurr[i][j] == START) {
+                mazeCurr[i][j] = ' ';
+
+                // Indexes of the STARTING POINT
+                r = i;
+                c = j;
+            }
+        }
+    }
+
+    // We didn't find @
+    if (r<0 || c<0) {
+        printf("Error: No Starting position found!\n");
+        exit(EXIT_FAILURE);
+    }
+
+
+    step = move_recur(mazeCurr, 0, mazeBest, nr*nc, nr, nc, r, c);
+
+    // Solution found
+    if (step > 0) {
+        printf("Solution:\n");
+        mazeBest[r][c] = START;
+        display(mazeBest, nr);
+    } else {
+        printf("NO solution found!\n");
+    }
+
+    // Free Dynamic structures
+    for (r=0; r < nr; r++) {
+        free(mazeCurr[r]);
+        free(mazeBest[r]);
+    }
+    free(mazeCurr);
+    free(mazeBest);
+
+    return EXIT_SUCCESS;
+}
+
+/*
+ *  Recursively move the player up to the maze exit
+ *  find the best solution
+ */
+int move_recur(char **mazeCurr, int stepCurr, char **mazeBest, int stepBest, int nr, int nc, int row, int col){
+    int k, r, c;
+
+    /* Optimize the algorithm by stopping unnecessary exploration */
+    if (stepCurr >= stepBest) {
+        return stepBest;
+    }
+
+    // If we reach the exit point
+    if (mazeCurr[row][col] == STOP) {
+
+        // If the current solution is better
+        if (stepCurr < stepBest) {
+            // Set the best route = current route
+            stepBest = stepCurr;
+
+            // Copy the current maze configuration to the best maze configuration
+            for (r = 0; r < nr; r++) {
+                for (c = 0; c < nc; c++) {
+                    mazeBest[r][c] = mazeCurr[r][c];
+                }
+            }
+        }
+#if DEBUG
+        // add this to print all solutions
+        display(mazeCurr,nr);
+#endif
+        // Return the best number of steps found
+        return stepBest;
+    }
+
+    // Check if Current Position is Occupied or Outside the Maze
+    // !EMPTY: It means it's either an obstacle or a position already visited, no need to explore further
+    if (mazeCurr[row][col] != EMPTY) {
+        return stepBest;
+    }
+
+    // Mark the current pos as part of the path
+    mazeCurr[row][col] = PATH;
+
+
+    for (k=0; k < 4; k++) {
+
+        r = row + xOff[k];
+        c = col + yOff[k];
+
+        // Recursively call move_recur for each possible move, updating the best number of steps.
+        if (r>=0 && r<nr && c>=0 && c<nc) {
+            stepBest = move_recur(mazeCurr, stepCurr+1, mazeBest, stepBest, nr, nc, r, c);
+        }
+    }
+
+    // Backtrack
+    mazeCurr[row][col] = EMPTY;
+
+    return stepBest;
+}
+
+/*
+ *  write the maze scheme on screen
+ */
+void display(char **maze, int nr)
+{
+    int i;
+
+    for (i=0; i<nr; i++) {
+        printf("%s", maze[i]);
+    }
+    fprintf(stdout,"\n\n");
+}
+
+/*
+ *  fopen (with check) utility function
+ */
+FILE *util_fopen(char *name, char *mode)
+{
+    FILE *fp=fopen(name, mode);
+    if (fp == NULL) {
+        printf("Error opening file %s.\n", name);
+        exit(EXIT_FAILURE);
+    }
+    return fp;
+}
+
+/*
+ *  malloc (with check) utility function
+ */
+void *util_malloc(int size)
+{
+    void *ptr=malloc(size);
+    if (ptr == NULL) {
+        printf("Memory allocation error.\n");
+        exit(EXIT_FAILURE);
+    }
+    return ptr;
+}
+
+/*
+ *  strdup (with check) utility function
+ */
+char *util_strdup(char *src)
+{
+    char *dst = strdup(src);
+    if (dst == NULL) {
+        printf("Memory allocation error.\n");
+        exit(EXIT_FAILURE);
+    }
+    return dst;
+}
