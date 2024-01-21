@@ -7,18 +7,18 @@
 // RECURSIVE BACKTRACKING WITH SHORTEST PATHS
 
 /*
-  
+
  * Overall Function Flow:
- 
+
    The function explores all possible paths in the maze using recursive backtracking.
-   
+
    It keeps track of the best solution found so far (mazeBest).
-   
+
    It avoids unnecessary exploration if the current path is already longer than the best path.
-   
+
    When a stopping position is reached, it checks if the current solution is better than the best
    solution found so far and updates accordingly.
-   
+
    This recursive backtracking approach efficiently explores the maze,
    finding the shortest path from the starting position to the stopping position.
 
