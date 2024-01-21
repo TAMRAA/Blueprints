@@ -61,6 +61,7 @@ int** newMatrix(int n) {
 // Function that act as a WRAPPER to solve the magic square problem
 void solveMagicSquare(int n, int row, int col, int** matrix) {
     int i;
+    int nextRow, nextCol;
 
     // OUR GOAL
     if (row == n) {
@@ -68,9 +69,14 @@ void solveMagicSquare(int n, int row, int col, int** matrix) {
             printMatrix(matrix, n);
         }
     } else {
-        for (i = 1; i <= n * n; i++) {
+        for (i = 0; i < n * n; i++) {
+            // Make a choice
             matrix[row][col] = i;
-            solveMagicSquare(n, row + ((col + 1) / n), (col + 1) % n, matrix);
+
+            nextRow = row + (col + 1) / n;
+            nextCol = (col + 1) % n;
+            
+            solveMagicSquare(n, nextRow, nextCol, matrix);
             // No need to backtrack for the matrix; it will be overwritten in the next iteration
         }
     }
@@ -79,17 +85,17 @@ void solveMagicSquare(int n, int row, int col, int** matrix) {
 // Function to check if the current matrix is a magic square
 int isMagicSquare(int** matrix, int n) {
     int sumRow, sumCol, sumDiagonal1 = 0, sumDiagonal2 = 0;
-
+    int i, j;
     // Calculate the sum of the first row to use as a reference
     sumRow = 0;
-    for (int j = 0; j < n; j++) {
+    for (j = 0; j < n; j++) {
         sumRow += matrix[0][j];
     }
 
     // Check sums of rows
-    for (int i = 1; i < n; i++) {
+    for ( i = 1; i < n; i++) {
         sumCol = 0;
-        for (int j = 0; j < n; j++) {
+        for ( j = 0; j < n; j++) {
             sumCol += matrix[i][j];
         }
         if (sumCol != sumRow) {
@@ -98,9 +104,9 @@ int isMagicSquare(int** matrix, int n) {
     }
 
     // Check sums of columns
-    for (int j = 0; j < n; j++) {
+    for ( j = 0; j < n; j++) {
         sumCol = 0;
-        for (int i = 0; i < n; i++) {
+        for ( i = 0; i < n; i++) {
             sumCol += matrix[i][j];
         }
         if (sumCol != sumRow) {
@@ -109,7 +115,7 @@ int isMagicSquare(int** matrix, int n) {
     }
 
     // Check sum of the main diagonal (top-left to bottom-right)
-    for (int i = 0; i < n; i++) {
+    for ( i = 0; i < n; i++) {
         sumDiagonal1 += matrix[i][i];
     }
     if (sumDiagonal1 != sumRow) {
@@ -117,7 +123,7 @@ int isMagicSquare(int** matrix, int n) {
     }
 
     // Check sum of the other diagonal (top-right to bottom-left)
-    for (int i = 0; i < n; i++) {
+    for ( i = 0; i < n; i++) {
         sumDiagonal2 += matrix[i][n - 1 - i];
     }
     if (sumDiagonal2 != sumRow) {
