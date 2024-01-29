@@ -1,0 +1,160 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+#define MAX 100
+
+enum {WHITE, GREY , BLACK};
+
+typedef struct vertex{
+
+    int id;
+    int color;
+    int dist;
+    int disc_time;
+    int endP_time_;
+    int pred;
+    int scc;
+    int *rowAdj;
+
+}vertex;
+
+typedef struct graph{
+    vertex *g;
+    int nv;
+}graph;
+
+// Function Prototypes
+graph *graphLoad (char *filename);
+int graphFind (graph *g, int id);
+void graphAttributeInit (graph *g);
+void graphDispose (graph *g);
+
+// Main Function
+int main(){
+    graph *g = NULL;
+
+    g = graphLoad("../input.txt");
+
+    // Example: Print the adjacency matrix of the loaded graph
+    printf("Adjacency Matrix:\n");
+    for (int i = 0; i < g->nv; i++) {
+        for (int j = 0; j < g->nv; j++) {
+            printf("%d ", g->g[i].rowAdj[j]);
+        }
+        printf("\n");
+    }
+
+    // Example: Find and print the index of a vertex with ID 2
+    int index_2 = graphFind(g, 2);
+    if (index_2 != -1) {
+        printf("Index of vertex with ID 2: %d\n", index_2);
+    } else {
+        printf("Vertex with ID 2 not found.\n");
+    }
+
+    graphDispose(g);
+
+    graphDispose(g);
+    return EXIT_SUCCESS;
+
+}
+
+// Function Declarations
+graph *graphLoad (char *filename) {
+    graph *g;
+    char line[MAX];
+    int i, j, weight, dir;
+
+    FILE *fp;
+    g = (struct graph *) malloc( sizeof(graph));
+    if(g == NULL){
+        fprintf(stderr,"memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+
+    fp = fopen(filename, "r");
+    if(fp == NULL){
+        fprintf(stderr,"memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fgets (line, MAX, fp);
+
+
+    if (sscanf(line, "%d %d", &g->nv, &dir) != 2) {
+        sscanf(line, "%d", &g->nv);
+        dir = 1;
+    }
+
+    g->g = (struct vertex *) malloc(g->nv * sizeof(vertex));
+    if(g->g == NULL){
+        fprintf(stderr,"memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (i=0; i<g->nv; i++) {
+        g->g[i].id = i;
+        g->g[i].color = WHITE;
+        g->g[i].dist = INT_MAX;
+        g->g[i].pred = -1;
+        g->g[i].scc = -1;
+        g->g[i].disc_time = -1;
+        g->g[i].rowAdj = (int *) malloc (g->nv * sizeof(int));
+    }
+    while (fgets(line, MAX, fp) != NULL) {
+        if (sscanf(line, "%d%d%d", &i, &j, &weight) != 3) {
+
+            sscanf(line, "%d%d", &i, &j);
+            weight = 1;
+        }
+
+        g->g[i].rowAdj[j] = weight;
+        if (dir == 0) {
+            g->g[j].rowAdj[i] = weight;
+        }
+    }
+
+    fclose(fp);
+    return g;
+}
+
+
+void graphAttributeInit (graph *g) {
+    int i;
+    for (i=0; i<g->nv; i++) {
+        g->g[i].color = WHITE;
+        g->g[i].dist = INT_MAX;
+        g->g[i].disc_time = -1;
+        g->g[i].endP_time_ = -1;
+        g->g[i].pred = -1;
+        g->g[i].scc = -1;
+    }
+
+    return;
+}
+
+int graphFind (graph *g, int id){
+    int i;
+    for (i=0; i<g->nv; i++) {
+
+        if (g->g[i].id == id) {
+            return i;
+        }
+
+    }
+    return -1;
+}
+
+
+void graphDispose (graph *g) {
+    int i;
+    for (i=0; i< g->nv; i++) {
+        free(g->g[i].rowAdj);
+    }
+    free(g->g);
+    free(g);
+
+    return;
+}
