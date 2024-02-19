@@ -1,0 +1,84 @@
+#include <stdio.h>
+
+// Function Prototypes
+
+void load_truck(float *weight, float *value, int n, float load,
+                float curr_weight, float curr_value, int *chosen, float *max_value) ;
+
+
+// Main Function
+
+int main() {
+    float weight[] = {10.0, 15.0, 25.5, 39.5, 17.0};
+    float value[] = {19.99, 9.50, 15.00, 27.50, 11.40};
+    int n = 5;
+    float load = 50.0;
+    float max_value = 0;
+
+    int chosen[n];
+    for (int i = 0; i < n; ++i) {
+        chosen[i] = 0; // Initialize all parcels as not chosen
+    }
+
+    load_truck(weight, value, n, load, 0, 0, chosen, &max_value);
+
+    printf("Maximum value that can be transported: %.2f euros\n", max_value);
+    printf("Parcels loaded for maximum value:\n");
+    for (int i = 0; i < n; ++i) {
+        if(chosen[i]) {
+            printf("Parcel %d (Weight: %.2f kg, Value: %.2f euros)\n", i, weight[i], value[i]);
+        }
+    }
+
+    return 0;
+}
+
+// Recursive function to load the truck and maximize transported value
+void load_truck(float *weight, float *value, int n, float load, float curr_weight, float curr_value,
+                int *chosen, float *max_value){
+
+    // Base case: If there are no more parcels or the load capacity is exhausted
+    if (n == 0 || load <= 0) {
+
+        // If the current value is greater than the maximum value found so far,
+        // update the maximum value and the loaded array
+        if (curr_value > *max_value) {
+
+            *max_value = curr_value;
+
+            for (int i = 0; i < n; ++i){
+
+                // Reset chosen array
+                chosen[i] = 0;
+            }
+
+            for (int i = 0; i < n; ++i){
+
+                // Mark chosen parcels
+                chosen[i] = 1;
+            }
+        }
+        return;
+    }
+
+    // For each parcel, the function checks if it can be loaded into the truck without exceeding the weight limit
+    if (weight[n - 1] <= load) {
+
+
+        // Load the current parcel
+        curr_weight += weight[n - 1];
+        curr_value += value[n - 1];
+        // Recur for the remaining parcels
+        load_truck(weight, value, n - 1, load - weight[n - 1], curr_weight, curr_value, chosen, max_value);
+
+
+        // Unload the current parcel and recur without it
+        curr_weight -= weight[n - 1];
+        curr_value -= value[n - 1];
+        load_truck(weight, value, n - 1, load, curr_weight, curr_value, chosen, max_value);
+    } else {
+        // If the current parcel cannot be loaded, recur without it
+        load_truck(weight, value, n - 1, load, curr_weight, curr_value, chosen, max_value);
+    }
+}
+
