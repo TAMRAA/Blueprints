@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct val_s {
+    int numChoice;
+    char **choices;
+} val_t;
+
+// Function Prototypes
+int multiPrincipale(val_t *val, int *sol, int n, int count, int pos);
+
+// Main Function
+int main() {
+    int n = 3; // Number of courses
+    val_t *val = malloc(n * sizeof(val_t));
+    int *sol = (int *)malloc(n * sizeof(int));
+
+    if (val == NULL || sol == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize numChoice and choices for each val_t object
+    val[0].numChoice = 3; // Number of first courses
+    val[0].choices = malloc(val[0].numChoice * sizeof(char *));
+    val[0].choices[0] = "Pasta"; // First course option 1
+    val[0].choices[1] = "Rice"; // First course option 2
+    val[0].choices[2] = "Gnocchi"; // First course option 3
+
+    val[1].numChoice = 2; // Number of second courses
+    val[1].choices = malloc(val[1].numChoice * sizeof(char *));
+    val[1].choices[0] = "Pollo"; // Second course option 1
+    val[1].choices[1] = "Manzo"; // Second course option 2
+
+    val[2].numChoice = 2; // Number of appetizers
+    val[2].choices = malloc(val[2].numChoice * sizeof(char *));
+    val[2].choices[0] = "Cake"; // Appetizer option 1
+    val[2].choices[1] = "Tiramisu"; // Appetizer option 2
+
+    int totalCombinations = multiPrincipale(val, sol, n, 0, 0);
+    printf("Total combinations: %d\n", totalCombinations);
+
+    // Free allocated memory
+    for (int i = 0; i < n; i++) {
+        free(val[i].choices);
+    }
+    free(val);
+    free(sol);
+
+    return EXIT_SUCCESS;
+}
+
+int multiPrincipale(val_t *val, int *sol, int n, int count, int pos) {
+
+    int i;
+    if (pos >= n) {
+        for (i = 0; i < n; i++)
+            printf("%s ", val[i].choices[sol[i]]);
+        printf("\n");
+        return count + 1;
+    }
+
+    for (i = 0; i < val[pos].numChoice; i++) {
+        sol[pos] = i;
+        count = multiPrincipale(val, sol, n, count, pos + 1);
+    }
+    return count;
+}
