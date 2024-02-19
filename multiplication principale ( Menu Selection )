@@ -29,8 +29,8 @@ int main() {
 
     val[1].numChoice = 2; // Number of second courses
     val[1].choices = malloc(val[1].numChoice * sizeof(char *));
-    val[1].choices[0] = "Pollo"; // Second course option 1
-    val[1].choices[1] = "Manzo"; // Second course option 2
+    val[1].choices[0] = "Chicken"; // Second course option 1
+    val[1].choices[1] = "Meat"; // Second course option 2
 
     val[2].numChoice = 2; // Number of appetizers
     val[2].choices = malloc(val[2].numChoice * sizeof(char *));
